@@ -2,50 +2,45 @@
 
 namespace App\Controller;
 
-use App\Entity\Category;
-use App\Form\CategoryType;
-use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Schema\View;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\User;
 
 class UserController extends AbstractController
 {
-
-
-    #[Route('/user', name: 'app_user')]
-
-    public function index(ManagerRegistry $doctrine): Response
+    #[GET('/Login')]
+    public function create():View
     {
-        $users=$doctrine->getRepository('App\Entity\User')->findAll();
+        return View::make('register');
+    }
 
+    /**
+     * @Route("/login", name="app_login")
+     */
+    public function index(AuthenticationUtils $authenticationUtils): Response
+    {
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
 
-        return $this->render('user/index.html.twig', [
-            'controller_name' => 'UserController',
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
 
+        return $this->render('login/index.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error,
         ]);
     }
-    /**
-     * @Route("Admin/user/delete/{id}", name="user_delete")
-     */
-    public function deleteAction(ManagerRegistry $doctrine,$id):Response
-    {$em = $doctrine->getManager();
-        $users = $em->getRepository('App\Entity\User')->find($id);
 
-        $em->remove($users);
-        $em->flush();
-
-
-        $this->addFlash(
-            'error',
-            'users deleted'
-        );
-
-        return $this->redirectToRoute('app_user');
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    {
+        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+            return new RedirectResponse($targetPath);
+        }
+        return new RedirectResponse($this->urlGenerator->generate('app_login'));
     }
-
-
 }

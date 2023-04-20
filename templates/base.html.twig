@@ -40,11 +40,18 @@
                 {#                <li><a href="{{ path('todo_create') }}">Add Todo</a></li>#}
                 <li><a href="{{ path('todo_create') }}">Add Product</a></li>
                 <li><a href="{{ path('app_todo') }}">Product</a></li>
+                <li><a href="{{ path('app_login') }}">Login</a></li>
+                <li><a href="{{ path('register') }}">Register</a></li>
+                <li><a href="{{ path('contact') }}">Contact Us</a></li>
+                <li><a href="{{ path('app_logout') }}">Logout</a></li>
+
+
 
 
             </ul>
         </div><!--/.nav-collapse -->
     </div>
+    {{ include('widget/contact_us.twig') }}
 </nav>
 
 <div class="container">
